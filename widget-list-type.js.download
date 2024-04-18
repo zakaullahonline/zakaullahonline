@@ -1,0 +1,63 @@
+const calculatedWidgetHeightUpdateRetries = 10
+const calculatedWidgetHeightUpdateRetryDelay = 1000
+let heightUpdateRetries = 0
+let oldHeight = 0
+
+// Function Definitions
+function updateHeight(isInitUpdate = false) {
+  try {
+    const height = document.getElementsByTagName('body')[0].scrollHeight
+
+    if (oldHeight !== height) {
+      oldHeight = height
+
+      window.parent.postMessage(
+        ['lc.setHeight', { id: 'lc_reviews_widget', height }],
+        '*',
+      )
+    }
+
+    if (isInitUpdate) {
+      initUpdateHeight()
+      isInitUpdate = false
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+function initUpdateHeight() {
+  heightUpdateRetries++
+  if (heightUpdateRetries < calculatedWidgetHeightUpdateRetries) {
+    setTimeout(() => updateHeight(true), calculatedWidgetHeightUpdateRetryDelay)
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function toggleShowMore(id, operation) {
+  const comment = document.getElementById(`comment-${id}`)
+  const fullComment = document.getElementById(`full-comment-${id}`)
+  if (operation === 'SHOW') {
+    comment.classList.add('d-none')
+    fullComment.classList.remove('d-none')
+  } else {
+    comment.classList.remove('d-none')
+    fullComment.classList.add('d-none')
+  }
+}
+
+// On Load Calls
+window.onload = () => {
+  initUpdateHeight()
+}
+
+// Event Listeners
+window.addEventListener(
+  'message',
+  function (eventName) {
+    if (eventName.data === 'preview-height-update') {
+      updateHeight()
+    }
+  },
+  false,
+)

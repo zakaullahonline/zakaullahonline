@@ -1,0 +1,14 @@
+/* Layout Styles */
+.list-layout {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  .grid-layout {
+    max-height: 470px;
+  }
+}
